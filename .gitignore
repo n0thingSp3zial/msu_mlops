@@ -1,0 +1,14 @@
+# Игнорируем Python кэш
+__pycache__/
+*.py[cod]
+
+# Игнорируем данные и логи, но оставляем сами папки (за счет файла .gitkeep, о котором ниже)
+data/source/*
+data/raw/*
+data/meta/*
+data/cleaned/*
+models/*
+reports/*
+
+# Исключения (файлы-заглушки для сохранения пустых папок в Git)
+!.gitkeep
