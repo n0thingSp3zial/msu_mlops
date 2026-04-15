@@ -4,6 +4,7 @@ __pycache__/
 
 # Игнорируем данные и логи, но оставляем сами папки (за счет файла .gitkeep, о котором ниже)
 data/source/*
+!data/source/weatherAUS.csv
 data/raw/*
 data/meta/*
 data/cleaned/*
