@@ -1,10 +1,11 @@
 import pandas as pd
 import os
 from datetime import datetime
+import logging
 from src.config import META_DATA_DIR, REPORTS_DIR, DQ_REPORT_FILE
 
 def generate_summary():
-    print("[SUMMARY] Генерация отчета о состоянии ML-системы...")
+    logging.info("[SUMMARY] Generating MLOps system status report...")
 
     batches_meta_path = os.path.join(META_DATA_DIR, "batches_meta.csv")
     metrics_path = os.path.join(REPORTS_DIR, "validation_metrics.csv")
@@ -59,5 +60,5 @@ def generate_summary():
     with open(report_path, "w", encoding='utf-8') as f:
         f.write("\n".join(report_lines))
 
-    print(f"[SUMMARY] Отчет успешно сформирован и сохранен в: {report_path}")
+    logging.info(f"[SUMMARY] Report successfully generated and saved to: {report_path}")
     return report_path

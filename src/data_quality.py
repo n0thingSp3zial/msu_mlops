@@ -1,10 +1,11 @@
 import pandas as pd
 import os
 from datetime import datetime
+import logging
 from src.config import DQ_REPORT_FILE, CLEANED_DATA_DIR
 
 def run_dq_checks(batch_filepath):
-    print(f"[DATA QUALITY] Начат анализ батча: {batch_filepath}")
+    logging.info(f"[DATA QUALITY] Started analysis of file: {batch_filepath}")
     df = pd.read_csv(batch_filepath)
     
     initial_rows = len(df)
@@ -33,7 +34,7 @@ def run_dq_checks(batch_filepath):
     df_cleaned = df_cleaned.dropna(subset=['RainTomorrow'])
     
     final_rows = len(df_cleaned)
-    print(f"[DATA QUALITY] Очистка: удалено {initial_rows - final_rows} строк.")
+    logging.info(f"[DATA QUALITY] Cleaning: removed {initial_rows - final_rows} defective/empty rows")
     
     dq_info = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -51,6 +52,6 @@ def run_dq_checks(batch_filepath):
         
     cleaned_filename = os.path.join(CLEANED_DATA_DIR, f"cleaned_{os.path.basename(batch_filepath)}")
     df_cleaned.to_csv(cleaned_filename, index=False)
-    print(f"[DATA QUALITY] Очищенные данные сохранены в {cleaned_filename}")
+    logging.info(f"[DATA QUALITY] Cleaned data saved to {cleaned_filename}")
     
     return cleaned_filename

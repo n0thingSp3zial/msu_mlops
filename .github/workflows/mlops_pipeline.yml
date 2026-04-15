@@ -1,0 +1,56 @@
+name: MLOps CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-train:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run PyTest
+        run: |
+          pytest -v tests/
+
+      - name: Generate Dummy Data for CI
+        run: |
+          mkdir -p data/source
+          echo "Date,Location,MinTemp,MaxTemp,Rainfall,Evaporation,Sunshine,WindGustDir,WindGustSpeed,WindDir9am,WindDir3pm,WindSpeed9am,WindSpeed3pm,Humidity9am,Humidity3pm,Pressure9am,Pressure3pm,Cloud9am,Cloud3pm,Temp9am,Temp3pm,RainToday,RainTomorrow" > data/source/weatherAUS.csv
+          echo "2008-12-01,Albury,13.4,22.9,0.6,NA,NA,W,44.0,W,WNW,20.0,24.0,71.0,22.0,1007.7,1007.1,8.0,NA,16.9,21.8,No,No" >> data/source/weatherAUS.csv
+          echo "2008-12-02,Albury,7.4,25.1,0.0,NA,NA,WNW,44.0,NNW,WSW,4.0,22.0,44.0,25.0,1010.6,1007.8,NA,NA,17.2,24.3,No,Yes" >> data/source/weatherAUS.csv
+          echo "2008-12-03,Albury,12.9,25.7,0.0,NA,NA,WSW,46.0,W,WSW,19.0,26.0,38.0,30.0,1007.6,1008.7,NA,2.0,21.0,23.2,No,No" >> data/source/weatherAUS.csv
+          echo "2008-12-04,Albury,9.2,28.0,0.0,NA,NA,NE,24.0,SE,E,11.0,9.0,45.0,16.0,1017.6,1012.8,NA,NA,18.1,26.5,No,Yes" >> data/source/weatherAUS.csv
+          echo "2008-12-05,Albury,17.5,32.3,1.0,NA,NA,W,41.0,ENE,NW,7.0,20.0,82.0,33.0,1010.8,1006.0,7.0,8.0,17.8,29.7,No,No" >> data/source/weatherAUS.csv
+
+      - name: Run ML Pipeline Update
+        run: |
+          python run.py -mode update
+
+      - name: Upload Logs Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-logs
+          path: pipeline.log
+          retention-days: 5
+
+      - name: Upload Model Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-model
+          path: models/best_model.pkl
+          retention-days: 5

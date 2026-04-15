@@ -16,3 +16,5 @@ BATCH_SIZE = 25000
 
 STATE_FILE = os.path.join(META_DATA_DIR, "stream_state.txt")
 METADATA_FILE = os.path.join(META_DATA_DIR, "batches_meta.csv")
+
+LOG_FILE = os.path.join(BASE_DIR, "pipeline.log")

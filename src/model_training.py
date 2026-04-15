@@ -7,6 +7,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
+import logging
 
 from src.config import MASTER_DATA_FILE, MODELS_DIR
 
@@ -43,7 +44,7 @@ def build_pipeline(classifier):
     ])
 
 def train_models(cleaned_batch_filepath):
-    print(f"[MODEL TRAINING] Добавление данных из файла {cleaned_batch_filepath} к существующим данным.")
+    logging.info(f"[MODEL TRAINING] Accumulating history. Adding file {cleaned_batch_filepath}")
     df_batch = pd.read_csv(cleaned_batch_filepath)
 
     if not os.path.exists(MASTER_DATA_FILE):
@@ -53,7 +54,7 @@ def train_models(cleaned_batch_filepath):
         df_batch.to_csv(MASTER_DATA_FILE, mode='a', header=False, index=False)
         df_master = pd.read_csv(MASTER_DATA_FILE)
 
-    print(f"[MODEL TRAINING] Размер набора данных: {len(df_master)} строк.")
+    logging.info(f"[MODEL TRAINING] Historical dataset size: {len(df_master)} rows")
 
     y = df_master['RainTomorrow'].map({'Yes': 1, 'No': 0})
     X = df_master.drop(columns=['RainTomorrow']) 
@@ -61,10 +62,10 @@ def train_models(cleaned_batch_filepath):
     dt_pipeline = build_pipeline(DecisionTreeClassifier(max_depth=7, random_state=69))
     mlp_pipeline = build_pipeline(MLPClassifier(hidden_layer_sizes=(16, 8), max_iter=500, random_state=69))
 
-    print("[MODEL TRAINING] Обучение Decision Tree...")
+    logging.info("[MODEL TRAINING] Training Pipeline (Decision Tree)...")
     dt_pipeline.fit(X, y)
 
-    print("[MODEL TRAINING] Обучение MLPClassifier...")
+    logging.info("[MODEL TRAINING] Training Pipeline (MLP Neural Net)...")
     mlp_pipeline.fit(X, y)
 
     version = len(df_master)
@@ -77,7 +78,6 @@ def train_models(cleaned_batch_filepath):
     with open(mlp_path, 'wb') as f:
         pickle.dump(mlp_pipeline, f)
 
-    print(f"[MODEL TRAINING] Упаковка моделей/:")
-    print(f"\t{dt_path}\n\t{mlp_path}")
+    logging.info(f"[MODEL TRAINING] Models serialized in models/ directory:\n  {dt_path}\n  {mlp_path}")
 
     return dt_path, mlp_path, MASTER_DATA_FILE

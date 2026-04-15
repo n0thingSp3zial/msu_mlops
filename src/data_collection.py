@@ -1,18 +1,19 @@
 import pandas as pd
 import os
 from datetime import datetime
+import logging
 from src.config import DATA_SOURCE_PATH, RAW_DATA_DIR, STATE_FILE, METADATA_FILE, BATCH_SIZE
 
 def get_next_batch():
     if not os.path.exists(DATA_SOURCE_PATH):
-        raise FileNotFoundError(f"[DATA COLLECTION] Набор данных не найден по пути {DATA_SOURCE_PATH}")
+        raise FileNotFoundError(f"[DATA COLLECTION] The dataset could not be located at the {DATA_SOURCE_PATH}")
 
     skip_rows = 0
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE, "r") as f:
             skip_rows = int(f.read().strip())
 
-    print(f"[DATA COLLECTION] Чтение строк с {skip_rows} по {skip_rows + BATCH_SIZE}...")
+    logging.info(f"[DATA COLLECTION] Reading rows from {skip_rows} to {skip_rows + BATCH_SIZE}...")
     
     try:
         header = pd.read_csv(DATA_SOURCE_PATH, nrows=0).columns
@@ -22,17 +23,17 @@ def get_next_batch():
                                names=header,
                                header=0)
     except Exception as e:
-        print(f"[DATA COLLECTION] Ошибка чтения данных: {e}")
+        logging.info(f"[DATA COLLECTION] Error reading data: {e}")
         return None
 
     if df_batch.empty:
-        print("[DATA COLLECTION] Поток данных исчерпан.")
+        logging.info("[DATA COLLECTION] Data stream exhausted (end of file reached)")
         return None
 
     batch_idx = skip_rows // BATCH_SIZE + 1
     batch_filename = os.path.join(RAW_DATA_DIR, f"batch_{batch_idx}.csv")
     df_batch.to_csv(batch_filename, index=False)
-    print(f"[DATA COLLECTION] Батч {batch_idx} сохранен в {batch_filename}")
+    logging.info(f"[DATA COLLECTION] Batch {batch_idx} saved to {batch_filename}")
 
     meta_info = {
         "batch_id": batch_idx,

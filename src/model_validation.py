@@ -4,12 +4,13 @@ import os
 import shutil
 from datetime import datetime
 from sklearn.model_selection import TimeSeriesSplit
+import logging
 from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score
 
 from src.config import MODELS_DIR, REPORTS_DIR
 
 def evaluate_models(dt_path, mlp_path, master_data_path):
-    print(f"[VALIDATION] Запуск валидации моделей...")
+    logging.info(f"[VALIDATION] Starting Time-Series cross-validation...")
     df = pd.read_csv(master_data_path)
 
     if 'Date' in df.columns:
@@ -41,8 +42,8 @@ def evaluate_models(dt_path, mlp_path, master_data_path):
     mlp_acc = accuracy_score(y_test, mlp_preds)
     mlp_roc = roc_auc_score(y_test, mlp_probs)
 
-    print(f"[VALIDATION] Метрики Decision Tree: ROC-AUC={dt_roc:.3f}, Accuracy={dt_acc:.3f}")
-    print(f"[VALIDATION] Метрики MLP Neural Net: ROC-AUC={mlp_roc:.3f}, Accuracy={mlp_acc:.3f}")
+    logging.info(f"[VALIDATION] Decision Tree metrics: ROC-AUC={dt_roc:.3f}, Accuracy={dt_acc:.3f}")
+    logging.info(f"[VALIDATION] MLP Neural Net metrics: ROC-AUC={mlp_roc:.3f}, Accuracy={mlp_acc:.3f}")
 
     if dt_roc >= mlp_roc:
         best_name = "DecisionTree"
@@ -53,7 +54,7 @@ def evaluate_models(dt_path, mlp_path, master_data_path):
 
     best_model_dest = os.path.join(MODELS_DIR, "best_model.pkl")
     shutil.copy(best_path, best_model_dest)
-    print(f"[VALIDATION] Лучшая модель: {best_name}! Сохранена в {best_model_dest}")
+    logging.info(f"[VALIDATION] Best model: {best_name}! Saved in {best_model_dest}")
 
     eval_info = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
