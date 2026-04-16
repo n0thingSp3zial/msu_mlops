@@ -23,7 +23,8 @@ def generate_summary():
 
         total_batches = len(meta_df)
         total_rows_collected = meta_df['rows_count'].sum()
-        total_duplicates = dq_df['duplicates_found'].sum()
+        total_duplicates = dq_df['duplicates_found'].sum() if 'duplicates_found' in dq_df.columns else 0
+
 
         report_lines.append(f"- **Обраработано батчей:** {total_batches}")
         report_lines.append(f"- **Собрано сырых строк:** {total_rows_collected}")
