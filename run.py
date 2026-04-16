@@ -38,9 +38,9 @@ def run_update():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MLOps Pipeline MVP")
     parser.add_argument("-mode", type=str, required=True, choices=["inference", "update", "summary"],
-                        help="Режим работы ML-системы")
+                        help="ML-system mode")
     parser.add_argument("-file", type=str, required=False, 
-                        help="Путь к файлу (требуется только для режима inference)")
+                        help="File path (only for inference mode)")
     
     args = parser.parse_args()
 
